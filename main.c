@@ -7,6 +7,8 @@ typedef struct Player {
     int size;
 } Player;
 
+#define SUMI_PAPER (Color){ 240, 234, 214, 255 }
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -14,8 +16,8 @@ int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int screenWidth = 1280;
+    const int screenHeight = 720;
 
     InitWindow(screenWidth, screenHeight, "Calamari");
 
@@ -23,7 +25,7 @@ int main(void)
         .position = { 100, 100 },
         .velocity = { 0, 0 },
         .speed = 5.0f,
-        .size = 20
+        .size = 10
     };
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
@@ -50,11 +52,11 @@ int main(void)
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-            ClearBackground(RAYWHITE);
+            ClearBackground(SUMI_PAPER);
 
             DrawText("move the ball with arrow keys", 10, 10, 20, DARKGRAY);
 
-            DrawCircleV(player.position, 50, MAROON);
+            DrawCircleV(player.position, 20, MAROON);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
