@@ -1,6 +1,12 @@
 #include "raylib.h"
 
-// i could create the static and link it in. but i might as well just include the source
+typedef struct Player {
+    Vector2 position;
+    Vector2 velocity;
+    float speed;
+    int size;
+} Player;
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -11,9 +17,14 @@ int main(void)
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - input keys");
+    InitWindow(screenWidth, screenHeight, "Calamari");
 
-    Vector2 ballPosition = { (float)screenWidth/2, (float)screenHeight/2 };
+    Player player = {
+        .position = { 100, 100 },
+        .velocity = { 0, 0 },
+        .speed = 5.0f,
+        .size = 20
+    };
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -23,10 +34,16 @@ int main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyDown(KEY_RIGHT)) ballPosition.x += 2.0f;
-        if (IsKeyDown(KEY_LEFT)) ballPosition.x -= 2.0f;
-        if (IsKeyDown(KEY_UP)) ballPosition.y -= 2.0f;
-        if (IsKeyDown(KEY_DOWN)) ballPosition.y += 2.0f;
+        if (IsKeyPressed(KEY_RIGHT)) player.velocity.x = player.speed;
+        if (IsKeyPressed(KEY_LEFT)) player.velocity.x = -player.speed;
+        if (IsKeyPressed(KEY_UP)) player.velocity.y = -player.speed;
+        if (IsKeyPressed(KEY_DOWN)) player.velocity.y = player.speed;
+
+        if (IsKeyUp(KEY_RIGHT) && IsKeyUp(KEY_LEFT)) player.velocity.x = 0;
+        if (IsKeyUp(KEY_UP) && IsKeyUp(KEY_DOWN)) player.velocity.y = 0;
+
+        player.position.x += player.velocity.x;
+        player.position.y += player.velocity.y;
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -37,7 +54,7 @@ int main(void)
 
             DrawText("move the ball with arrow keys", 10, 10, 20, DARKGRAY);
 
-            DrawCircleV(ballPosition, 50, MAROON);
+            DrawCircleV(player.position, 50, MAROON);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
