@@ -7,7 +7,7 @@ typedef struct Player {
     float speed;
     int size;
     bool focused;
-    bool moving;
+    bool dashing;
     float energy;
     float drain;
     float maxEnergy;
@@ -91,10 +91,10 @@ int main(void)
             if (player.energy < 0) {
                 player.energy = 0;
                 player.focused = false; // Lose focus when energy depletes
-                player.moving = true;
+                player.dashing = true;
                 curI = 0;
             }
-        } else if (player.moving) {
+        } else if (player.dashing) {
             player.position.x = catmul_rom(
                 curI > 0 ? path[curI - 1].x : player.position.x,
                 path[curI].x,
@@ -116,8 +116,8 @@ int main(void)
                 curI++;
                 if (curI >= pathI - 2) {
                     curI = 0;
-                    player.moving = false;
-                    pathI = 0; // Clear path after moving
+                    player.dashing = false;
+                    pathI = 0; // Clear path after dashing
                 }
             }
         } else {
@@ -145,7 +145,7 @@ int main(void)
 
             DrawCircleV(player.position, 20, player.focused ? RED : BLUE);
 
-            if (player.focused || player.moving) {
+            if (player.focused || player.dashing) {
                 for (int i = 0; i < pathI; i++) {
                     DrawCircleV(path[i], 5, BLACK);
                 }
