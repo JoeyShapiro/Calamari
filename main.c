@@ -7,12 +7,20 @@ typedef struct Player {
     float speed;
     int size;
     bool focused;
+    bool moving;
     float energy;
     float drain;
     float maxEnergy;
 } Player;
 
 #define SUMI_PAPER (Color){ 240, 234, 214, 255 }
+
+float catmul_rom(float p0, float p1, float p2, float p3, float t) {
+    return 0.5f * ((2.0f * p1) +
+                   (-p0 + p2) * t +
+                   (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t * t +
+                   (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t * t * t);
+}
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -26,6 +34,8 @@ int main(void)
 
     Vector2* path = malloc(sizeof(Vector2) * 25);
     int pathI = 0;
+    int curI = 0;
+    float t = 0;
     double lastPath = GetTime();
 
     InitWindow(screenWidth, screenHeight, "Calamari");
@@ -80,8 +90,35 @@ int main(void)
             player.energy -= player.drain;
             if (player.energy < 0) {
                 player.energy = 0;
-                pathI = 0;
                 player.focused = false; // Lose focus when energy depletes
+                player.moving = true;
+                curI = 0;
+            }
+        } else if (player.moving) {
+            player.position.x = catmul_rom(
+                curI > 0 ? path[curI - 1].x : player.position.x,
+                path[curI].x,
+                curI < pathI - 1 ? path[curI + 1].x : player.position.x,
+                curI < pathI - 2 ? path[curI + 2].x : player.position.x,
+                t
+            );
+            player.position.y = catmul_rom(
+                curI > 0 ? path[curI - 1].y : player.position.y,
+                path[curI].y,
+                curI < pathI - 1 ? path[curI + 1].y : player.position.y,
+                curI < pathI - 2 ? path[curI + 2].y : player.position.y,
+                t
+            );
+
+            t += 0.2f; // Adjust this value to change the speed of movement along the path
+            if (t >= 1.0f) {
+                t = 0.0f;
+                curI++;
+                if (curI >= pathI - 2) {
+                    curI = 0;
+                    player.moving = false;
+                    pathI = 0; // Clear path after moving
+                }
             }
         } else {
             player.energy += player.drain * 0.5f; // Regenerate energy when not focused
@@ -108,13 +145,11 @@ int main(void)
 
             DrawCircleV(player.position, 20, player.focused ? RED : BLUE);
 
-            if (player.focused) {
+            if (player.focused || player.moving) {
                 for (int i = 0; i < pathI; i++) {
                     DrawCircleV(path[i], 5, BLACK);
-                    if (i > 0) {
-                        DrawLineV(path[i - 1], path[i], BLACK);
-                    }
                 }
+                DrawSplineCatmullRom(path, pathI, 1, BLACK); // TODO handle sample rate problems
             }
 
         EndDrawing();
