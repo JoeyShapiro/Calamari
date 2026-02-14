@@ -68,15 +68,6 @@ int main(void)
         if (IsKeyUp(KEY_RIGHT) && IsKeyUp(KEY_LEFT)) player.velocity.x = 0;
         if (IsKeyUp(KEY_UP) && IsKeyUp(KEY_DOWN)) player.velocity.y = 0;
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            Vector2 mousePos = GetMousePosition();
-            
-            if (mousePos.x >= player.position.x - player.size && mousePos.x <= player.position.x + player.size &&
-                mousePos.y >= player.position.y - player.size && mousePos.y <= player.position.y + player.size) {
-                player.focused = !player.focused; // Toggle focus state
-            }
-        }
-
         player.position.x += player.velocity.x;
         player.position.y += player.velocity.y;
 
@@ -88,7 +79,7 @@ int main(void)
             }
 
             player.energy -= player.drain;
-            if (player.energy < 0) {
+            if (player.energy < 0 || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 player.energy = 0;
                 player.focused = false; // Lose focus when energy depletes
                 player.dashing = true;
@@ -124,6 +115,16 @@ int main(void)
             player.energy += player.drain * 0.5f; // Regenerate energy when not focused
             if (player.energy > player.maxEnergy) {
                 player.energy = player.maxEnergy;
+            }
+        }
+
+        // do this after player.focused check otherwise both will activate in the same frame
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            Vector2 mousePos = GetMousePosition();
+            
+            if (mousePos.x >= player.position.x - player.size && mousePos.x <= player.position.x + player.size &&
+                mousePos.y >= player.position.y - player.size && mousePos.y <= player.position.y + player.size) {
+                player.focused = !player.focused; // Toggle focus state
             }
         }
 
