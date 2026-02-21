@@ -30,6 +30,7 @@ pub fn build(b: *std.Build) !void {
 
     // Link with raylib
     exe.linkLibrary(raylib);
+    exe.linkSystemLibrary("m");
 
     // Link C library
     exe.linkLibC();

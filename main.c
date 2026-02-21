@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include <stdlib.h>
+#include <math.h>
 
 typedef struct Player {
     Vector2 position;
@@ -50,7 +51,7 @@ int main(void)
     float t = 0;
     double lastPath = GetTime();
 
-    Mob* mobs = malloc(sizeof(Mob) * 100);
+    Mob* mobs = malloc(sizeof(Mob) * 10);
     int mobCount = 0;
     double lastMob = GetTime();
 
@@ -79,17 +80,42 @@ int main(void)
 
         // Logic
         int rng = GetRandomValue(0, 100);
-        if (rng < 5 && now - lastMob > 1.0) { // 5% chance to spawn a mob each frame, with a 1 second cooldown
+        if (mobCount < 10 && rng < 5 && now - lastMob > 1.0) { // 5% chance to spawn a mob each frame, with a 1 second cooldown
             mobs[mobCount++] = (Mob){
                 .position = { GetRandomValue(0, screenWidth), GetRandomValue(0, screenHeight) },
                 .velocity = { 0, 0 },
                 .speed = 2.0f,
                 .size = 10,
-                .health = 50.0f,
+                .health = 20.0f,
                 .maxHealth = 50.0f,
                 .damage = 10.0f,
             };
             lastMob = now;
+        }
+
+        // check for collisions with mobs
+        for (size_t i = 0; i < mobCount; i++) {
+            float dx = mobs[i].position.x - player.position.x;
+            float dy = mobs[i].position.y - player.position.y;
+            float distance = sqrtf(dx * dx + dy * dy);
+
+            if (distance < mobs[i].size + player.size) {
+                if (player.dashing) {
+                    mobs[i].health -= 20.0f; // Damage mob when dashing
+                    if (mobs[i].health <= 0) {
+                        // TODO clever, but maybe do at the end
+                        // Remove mob by replacing it with the last one in the array
+                        mobs[i] = mobs[--mobCount];
+                        i--; // Check the new mob at this index in the next iteration
+                    }
+                } else {
+                    player.health -= mobs[i].damage;
+                    if (player.health < 0) player.health = 0;
+                    // simple knockback
+                    player.position.x -= dx / distance * 20;
+                    player.position.y -= dy / distance * 20;
+                }
+            }
         }
 
         // Update
