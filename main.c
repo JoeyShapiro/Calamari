@@ -15,6 +15,16 @@ typedef struct Player {
     float maxHealth;
 } Player;
 
+typedef struct Mob {
+    Vector2 position;
+    Vector2 velocity;
+    float speed;
+    int size;
+    float health;
+    float maxHealth;
+    float damage;
+} Mob;
+
 #define SUMI_PAPER (Color){ 240, 234, 214, 255 }
 
 float catmul_rom(float p0, float p1, float p2, float p3, float t) {
@@ -40,6 +50,10 @@ int main(void)
     float t = 0;
     double lastPath = GetTime();
 
+    Mob* mobs = malloc(sizeof(Mob) * 100);
+    int mobCount = 0;
+    double lastMob = GetTime();
+
     InitWindow(screenWidth, screenHeight, "Calamari");
 
     Player player = {
@@ -62,6 +76,22 @@ int main(void)
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         double now = GetTime();
+
+        // Logic
+        int rng = GetRandomValue(0, 100);
+        if (rng < 5 && now - lastMob > 1.0) { // 5% chance to spawn a mob each frame, with a 1 second cooldown
+            mobs[mobCount++] = (Mob){
+                .position = { GetRandomValue(0, screenWidth), GetRandomValue(0, screenHeight) },
+                .velocity = { 0, 0 },
+                .speed = 2.0f,
+                .size = 10,
+                .health = 50.0f,
+                .maxHealth = 50.0f,
+                .damage = 10.0f,
+            };
+            lastMob = now;
+        }
+
         // Update
         //----------------------------------------------------------------------------------
         if (IsKeyPressed(KEY_RIGHT)) player.velocity.x = player.speed;
@@ -160,6 +190,11 @@ int main(void)
                     DrawCircleV(path[i], 5, BLACK);
                 }
                 DrawSplineCatmullRom(path, pathI, 1, BLACK); // TODO handle sample rate problems
+            }
+
+            for (size_t i = 0; i < mobCount; i++)
+            {
+                DrawCircleV(mobs[i].position, mobs[i].size, RED);
             }
 
         EndDrawing();
