@@ -11,6 +11,8 @@ typedef struct Player {
     float energy;
     float drain;
     float maxEnergy;
+    float health;
+    float maxHealth;
 } Player;
 
 #define SUMI_PAPER (Color){ 240, 234, 214, 255 }
@@ -48,7 +50,9 @@ int main(void)
         .focused = false,
         .energy = 100.0f,
         .drain = 1.0f,
-        .maxEnergy = 100.0f
+        .maxEnergy = 100.0f,
+        .health = 100.0f,
+        .maxHealth = 100.0f,
     };
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
@@ -142,7 +146,12 @@ int main(void)
 
             ClearBackground(SUMI_PAPER);
 
-            DrawText("move the ball with arrow keys", 10, 10, 20, DARKGRAY);
+            // energy bar
+            DrawRectangle(10, 10, 200, 20, GRAY);
+            DrawRectangle(10, 10, (int)(200 * (player.energy / player.maxEnergy)), 20, BLUE);
+            // health bar
+            DrawRectangle(10, 40, 200, 20, GRAY);
+            DrawRectangle(10, 40, (int)(200 * (player.health / player.maxHealth)), 20, RED);
 
             DrawCircleV(player.position, 20, player.focused ? RED : BLUE);
 
