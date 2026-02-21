@@ -120,13 +120,13 @@ int main(void)
 
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(KEY_RIGHT)) player.velocity.x = player.speed;
-        if (IsKeyPressed(KEY_LEFT)) player.velocity.x = -player.speed;
-        if (IsKeyPressed(KEY_UP)) player.velocity.y = -player.speed;
-        if (IsKeyPressed(KEY_DOWN)) player.velocity.y = player.speed;
+        if (IsKeyPressed(KEY_D)) player.velocity.x = player.speed;
+        if (IsKeyPressed(KEY_A)) player.velocity.x = -player.speed;
+        if (IsKeyPressed(KEY_W)) player.velocity.y = -player.speed;
+        if (IsKeyPressed(KEY_S)) player.velocity.y = player.speed;
 
-        if (IsKeyUp(KEY_RIGHT) && IsKeyUp(KEY_LEFT)) player.velocity.x = 0;
-        if (IsKeyUp(KEY_UP) && IsKeyUp(KEY_DOWN)) player.velocity.y = 0;
+        if (IsKeyUp(KEY_D) && IsKeyUp(KEY_A)) player.velocity.x = 0;
+        if (IsKeyUp(KEY_W) && IsKeyUp(KEY_S)) player.velocity.y = 0;
 
         player.position.x += player.velocity.x;
         player.position.y += player.velocity.y;
