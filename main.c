@@ -80,7 +80,8 @@ int main(void)
 
         // Logic
         int rng = GetRandomValue(0, 100);
-        if (mobCount < 10 && rng < 5 && now - lastMob > 1.0) { // 5% chance to spawn a mob each frame, with a 1 second cooldown
+        if (!player.dashing && !player.focused && 
+            mobCount < 10 && rng < 5 && now - lastMob > 1.0) { // 5% chance to spawn a mob each frame, with a 1 second cooldown
             mobs[mobCount++] = (Mob){
                 .position = { GetRandomValue(0, screenWidth), GetRandomValue(0, screenHeight) },
                 .velocity = { 0, 0 },
@@ -146,6 +147,7 @@ int main(void)
                 curI = 0;
             }
         } else if (player.dashing) {
+            // TODO place points on mouse distance traveled or move based on mouse distance
             player.position.x = catmul_rom(
                 curI > 0 ? path[curI - 1].x : player.position.x,
                 path[curI].x,
@@ -188,10 +190,18 @@ int main(void)
             }
         }
 
-        if (IsKeyPressed(KEY_H))
-        {
-            if (IsCursorHidden()) ShowCursor();
-            else HideCursor();
+        // now move mobs closer to the player
+        if (!player.dashing && !player.focused) {
+            for (size_t i = 0; i < mobCount; i++) {
+                Vector2 direction = { player.position.x - mobs[i].position.x, player.position.y - mobs[i].position.y };
+                float length = sqrtf(direction.x * direction.x + direction.y * direction.y);
+                if (length != 0) {
+                    direction.x /= length;
+                    direction.y /= length;
+                }
+                mobs[i].position.x += direction.x * mobs[i].speed;
+                mobs[i].position.y += direction.y * mobs[i].speed;
+            }
         }
 
         //----------------------------------------------------------------------------------
