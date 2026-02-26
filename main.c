@@ -55,6 +55,10 @@ int main(void)
     int mobCount = 0;
     double lastMob = GetTime();
 
+    int kills = 0;
+    int streak = 0;
+    int coin = 0;
+
     InitWindow(screenWidth, screenHeight, "Calamari");
 
     Player player = {
@@ -108,6 +112,8 @@ int main(void)
                         // Remove mob by replacing it with the last one in the array
                         mobs[i] = mobs[--mobCount];
                         i--; // Check the new mob at this index in the next iteration
+                        kills++;
+                        streak++;
                     }
                 } else {
                     player.health -= mobs[i].damage;
@@ -171,6 +177,7 @@ int main(void)
                     curI = 0;
                     player.dashing = false;
                     pathI = 0; // Clear path after dashing
+                    streak = 0;
                 }
             }
         } else {
@@ -218,6 +225,10 @@ int main(void)
             // health bar
             DrawRectangle(10, 40, 200, 20, GRAY);
             DrawRectangle(10, 40, (int)(200 * (player.health / player.maxHealth)), 20, RED);
+            // kill count and streak
+            DrawText(TextFormat("Kills: %d", kills), 10, 70, 20, BLACK);
+            DrawText(TextFormat("Streak: %d", streak), 10, 100, 20, BLACK);
+            DrawText(TextFormat("Coin: %d", coin), 10, 130, 20, BLACK);
 
             DrawCircleV(player.position, 20, player.focused ? RED : BLUE);
 
