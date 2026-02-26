@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <math.h>
 
+/* TODO
+ - add drops
+ - add sound effects
+ - 
+*/
+
 typedef struct Player {
     Vector2 position;
     Vector2 velocity;
@@ -127,16 +133,19 @@ int main(void)
 
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(KEY_D)) player.velocity.x = player.speed;
-        if (IsKeyPressed(KEY_A)) player.velocity.x = -player.speed;
-        if (IsKeyPressed(KEY_W)) player.velocity.y = -player.speed;
-        if (IsKeyPressed(KEY_S)) player.velocity.y = player.speed;
+        // only move if player is "active"
+        if (!player.dashing && !player.focused) {
+            if (IsKeyPressed(KEY_D)) player.velocity.x = player.speed;
+            if (IsKeyPressed(KEY_A)) player.velocity.x = -player.speed;
+            if (IsKeyPressed(KEY_W)) player.velocity.y = -player.speed;
+            if (IsKeyPressed(KEY_S)) player.velocity.y = player.speed;
 
-        if (IsKeyUp(KEY_D) && IsKeyUp(KEY_A)) player.velocity.x = 0;
-        if (IsKeyUp(KEY_W) && IsKeyUp(KEY_S)) player.velocity.y = 0;
+            if (IsKeyUp(KEY_D) && IsKeyUp(KEY_A)) player.velocity.x = 0;
+            if (IsKeyUp(KEY_W) && IsKeyUp(KEY_S)) player.velocity.y = 0;
 
-        player.position.x += player.velocity.x;
-        player.position.y += player.velocity.y;
+            player.position.x += player.velocity.x;
+            player.position.y += player.velocity.y;
+        }
 
         if (player.focused) {
             if (now - lastPath > 0.05 && pathI < 25) { // Update path every 0.5 seconds
@@ -189,12 +198,12 @@ int main(void)
 
         // do this after player.focused check otherwise both will activate in the same frame
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            Vector2 mousePos = GetMousePosition();
+            SetMousePosition(player.position.x, player.position.y); // Teleport mouse to player position for better control
+            player.focused = !player.focused; // Toggle focus state
             
-            if (mousePos.x >= player.position.x - player.size && mousePos.x <= player.position.x + player.size &&
-                mousePos.y >= player.position.y - player.size && mousePos.y <= player.position.y + player.size) {
-                player.focused = !player.focused; // Toggle focus state
-            }
+            // if (mousePos.x >= player.position.x - player.size && mousePos.x <= player.position.x + player.size &&
+            //     mousePos.y >= player.position.y - player.size && mousePos.y <= player.position.y + player.size) {
+            // }
         }
 
         // now move mobs closer to the player
